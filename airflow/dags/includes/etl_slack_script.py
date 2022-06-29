@@ -1,8 +1,78 @@
+import json
+# Enable debug logging
 import logging
+import os
+import warnings
+
+import matplotlib.pyplot as plot
+import pandas as pd
+
+warnings.filterwarnings('ignore')
+
+import json
+import os
+import time
+from datetime import datetime
+from time import sleep
+
+import pandas as pd
+import slack
+from slack_sdk import WebClient
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
 
 def extract_data():
     logger.info("Extracting data from slack.")
+    logger.debug("Getting token from environment variable")
+    token = os.getenv("SLACK_TOKEN")
+
+    CHANNEL = "GV5TKSZ1P"
+    MESSAGES_PER_PAGE = 200
+    MAX_MESSAGES = 2000
+
+    # init web client
+    client = slack.WebClient(token=token)
+
+    # get first page
+    page = 1
+    print("Retrieving page {}".format(page))
+    response = client.conversations_history(
+        channel=CHANNEL,
+        limit=MESSAGES_PER_PAGE,
+    )
+    assert response["ok"]
+    messages_all = response['messages']
+
+    # get additional pages if below max message and if they are any
+    while len(messages_all) + MESSAGES_PER_PAGE <= MAX_MESSAGES and response['has_more']:
+        page += 1
+        print("Retrieving page {}".format(page))
+        sleep(1)   # need to wait 1 sec before next call due to rate limits
+        response = client.conversations_history(
+            channel=CHANNEL,
+            limit=MESSAGES_PER_PAGE,
+            cursor=response['response_metadata']['next_cursor']
+        )
+        assert response["ok"]
+        messages = response['messages']
+        messages_all = messages_all + messages
+
+    print(
+        "Fetched a total of {} messages from channel {}".format(
+            len(messages_all),
+            CHANNEL
+    ))
+
+    timestr = time.strftime("%Y-%m-%d")
+    parquet_file_path = f"/data/parquet/timesheet_{timestr}.parquet"
+    logger.info(f"Creating parquet file on: {parquet_file_path}")
+    
+    df = pd.DataFrame(messages_all)
+    df_result = df[["user", "text", "ts"]]
+    logger.info(df_result.head(10))
+    df_result.to_parquet(parquet_file_path)
+    
+    return parquet_file_path
+
 
