@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: stg_timesheet
+    columns:
+      - name: user_name
+        tests:
+          - not_null
+      - name: ts
+        tests:
+          - not_null
+      - name: user_message
+        tests: 
+          - not_null
+
+
+sources:
+  - name: public
+    tables:
+      - name: timesheet

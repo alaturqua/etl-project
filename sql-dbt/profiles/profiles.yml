@@ -1,0 +1,14 @@
+sql_dbt:
+  outputs:
+
+    prod:
+      type: postgres
+      threads: 4
+      host: postgres-dwh
+      port: 5432
+      user: airflow
+      pass: airflow
+      dbname: postgres
+      schema: public
+
+  target: prod

@@ -66,6 +66,7 @@ x-airflow-common:
     - ./airflow/plugins:/opt/airflow/plugins
     - ./data:/data
     - ./sql-dbt:/dwh/sql-dbt
+    - ./sql-dbt/profiles/profiles.yml:/home/airflow/.dbt/profiles.yml
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -281,7 +282,18 @@ services:
     image: postgres
     container_name: postgres-dwh
     environment:
-      - POSTGRESUSER=airflow
-      - POSTGRESPASSWORD=airflow
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-dwh-volume:/var/lib/postgresql/data
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3000:3000
 volumes:
   postgres-db-volume:
+  postgres-dwh-volume:

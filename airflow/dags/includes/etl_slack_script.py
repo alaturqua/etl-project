@@ -8,7 +8,6 @@ import matplotlib.pyplot as plot
 import pandas as pd
 
 warnings.filterwarnings('ignore')
-
 import json
 import os
 import time
@@ -16,6 +15,7 @@ from datetime import datetime
 from time import sleep
 
 import pandas as pd
+import psycopg2
 import slack
 from slack_sdk import WebClient
 
@@ -70,9 +70,25 @@ def extract_data():
     
     df = pd.DataFrame(messages_all)
     df_result = df[["user", "text", "ts"]]
+    df_result.columns = ["user_name", "user_message", "ts"]
     logger.info(df_result.head(10))
     df_result.to_parquet(parquet_file_path)
     
     return parquet_file_path
 
 
+from pyspark.sql import SparkSession, Window
+from pyspark.sql import functions as f
+from pyspark.sql.types import *
+
+
+def load_data_to_postgres(file_path):
+    from sqlalchemy import create_engine
+    
+    alchemy_engine = create_engine('postgresql+psycopg2://airflow:airflow@postgres-dwh:5432/postgres')
+
+    df = pd.read_parquet(file_path)
+    df["ts"] = pd.to_datetime(df['ts'],unit='s')
+    logger.info(df.head(10))
+    df.to_sql(name="timesheet", schema="public", con=alchemy_engine, if_exists="replace")
+    return "Success"
