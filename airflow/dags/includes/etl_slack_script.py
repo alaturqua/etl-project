@@ -29,7 +29,7 @@ def extract_data():
 
     CHANNEL = "GV5TKSZ1P"
     MESSAGES_PER_PAGE = 200
-    MAX_MESSAGES = 2000
+    MAX_MESSAGES = 5000
 
     # init web client
     client = slack.WebClient(token=token)
