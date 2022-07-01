@@ -1,7 +1,7 @@
 with final as (
 	select
 		distinct user_name,
-		ts :: date as date_ts,
+		ts::date as date_ts,
 		date_part('year', ts) as year_ts,
 		date_part('month', ts) as month_ts,
 		date_part('day', ts) as day_ts,
@@ -28,7 +28,7 @@ select
 	month_name,
 	start_time,
 	end_time,
-	age(end_time, start_time) as working_hours,
-	age(end_time, start_time) - interval '8 hours' as over_time
+	abs(extract( epoch from end_time - start_time)/3600) as working_hours,
+	abs(extract( epoch from end_time - start_time)/3600) - 8 as over_time
 from
 	final
