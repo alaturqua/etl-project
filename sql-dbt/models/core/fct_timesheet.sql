@@ -1,4 +1,4 @@
-with final as (
+with base as (
 	select
 		distinct user_name,
 		ts::date as date_ts,
@@ -13,10 +13,11 @@ with final as (
 	from
 		{{ ref('stg_timesheet') }}
 	where
-		user_name = 'U0397S7U1FH'
+	1=1
+	 and user_name = 'U0397S7U1FH'
 	order by
 		date_ts desc
-)
+), prep AS (
 select
 	user_name,
 	date_ts,
@@ -28,7 +29,16 @@ select
 	month_name,
 	start_time,
 	end_time,
-	abs(extract( epoch from end_time - start_time)/3600) as working_hours,
-	abs(extract( epoch from end_time - start_time)/3600) - 8 as over_time
+	abs(extract( epoch from end_time - start_time)/3600) - 1 as working_hours,
+	abs(extract( epoch from end_time - start_time)/3600) - 9 as over_time
 from
-	final
+	base
+order by 2 desc
+), final as (
+	select 
+	*,
+	sum(over_time) over (partition by user_name order by date_ts) as cum_over_time
+	from prep
+)
+
+select * from final

@@ -2,14 +2,18 @@ version: 2
 
 models:
   - name: stg_timesheet
+    description: "Staging table for message data from Slack"
     columns:
       - name: user_name
+        description: 'User ID in Slack'
         tests:
           - not_null
       - name: ts
+        description: 'Timestamp of message in Slack'
         tests:
           - not_null
       - name: user_message
+        description: "Slack message posted by user"
         tests: 
           - not_null
 
