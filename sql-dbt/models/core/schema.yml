@@ -15,6 +15,4 @@ models:
         description: 'Day of Week'
         tests:
           - not_null
-          - accepted_values: 
-              values: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
     
