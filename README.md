@@ -1,6 +1,12 @@
 # ETL-Project Porfolio
 
+## Architecture
 ![Architecture](images/architecture.png)
+
+
+## Visualisation
+![Visualisation](images/grafana.png)
+
 
 ## Prerequisites:
 - Create .env file in parent folder with following content
