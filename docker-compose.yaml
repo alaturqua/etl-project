@@ -294,6 +294,26 @@ services:
     container_name: grafana
     ports:
       - 3000:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    restart: always
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - prometheus-storage:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9090:9090
+    links:
+      - grafana
+    restart: always 
 volumes:
   postgres-db-volume:
   postgres-dwh-volume:
+  grafana-storage:
+  prometheus-storage:
