@@ -189,7 +189,7 @@
           ]
         }
       ],
-      "title": "Work TIme by Month",
+      "title": "Work Time by Month",
       "transformations": [
         {
           "id": "convertFieldType",
@@ -199,6 +199,7 @@
           }
         }
       ],
+      "transparent": true,
       "type": "barchart"
     },
     {
@@ -325,7 +326,7 @@
           ]
         }
       ],
-      "title": "Work TIme by Week",
+      "title": "Work Time by Week",
       "transformations": [
         {
           "id": "convertFieldType",
@@ -335,6 +336,7 @@
           }
         }
       ],
+      "transparent": true,
       "type": "barchart"
     },
     {
@@ -368,8 +370,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -381,7 +382,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 26,
+        "h": 10,
         "w": 12,
         "x": 0,
         "y": 8
@@ -396,9 +397,9 @@
           "displayMode": "list",
           "placement": "bottom"
         },
-        "orientation": "horizontal",
+        "orientation": "auto",
         "showValue": "auto",
-        "stacking": "normal",
+        "stacking": "none",
         "tooltip": {
           "mode": "single",
           "sort": "none"
@@ -441,7 +442,8 @@
           ]
         }
       ],
-      "title": "Work TIme by Day",
+      "timeFrom": "7d",
+      "title": "Work Time by Day",
       "transformations": [
         {
           "id": "convertFieldType",
@@ -451,6 +453,7 @@
           }
         }
       ],
+      "transparent": true,
       "type": "barchart"
     },
     {
@@ -458,10 +461,11 @@
         "type": "postgres",
         "uid": "${DS_POSTGRESQL}"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "custom": {
             "axisLabel": "",
@@ -497,7 +501,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 26,
+        "h": 9,
         "w": 12,
         "x": 12,
         "y": 8
@@ -512,7 +516,7 @@
           "displayMode": "list",
           "placement": "bottom"
         },
-        "orientation": "horizontal",
+        "orientation": "vertical",
         "showValue": "auto",
         "stacking": "none",
         "tooltip": {
@@ -520,8 +524,8 @@
           "sort": "none"
         },
         "xField": "date_ts",
-        "xTickLabelMaxLength": 30,
-        "xTickLabelRotation": 0,
+        "xTickLabelMaxLength": 2,
+        "xTickLabelRotation": -90,
         "xTickLabelSpacing": 0
       },
       "targets": [
@@ -578,7 +582,7 @@
           ]
         }
       ],
-      "title": "Work TIme by Cumulated by Day",
+      "title": "Work Time by Cumulated by Day",
       "transformations": [
         {
           "id": "convertFieldType",
@@ -588,6 +592,7 @@
           }
         }
       ],
+      "transparent": true,
       "type": "barchart"
     },
     {
@@ -610,7 +615,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -625,7 +631,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 18
       },
       "id": 7,
       "options": {
@@ -677,7 +683,7 @@
       "type": "table"
     }
   ],
-  "refresh": "5s",
+  "refresh": "",
   "schemaVersion": 36,
   "style": "dark",
   "tags": [],
@@ -692,6 +698,6 @@
   "timezone": "",
   "title": "Time Dashboard",
   "uid": "Qu0ll93nz",
-  "version": 10,
+  "version": 26,
   "weekStart": ""
 }

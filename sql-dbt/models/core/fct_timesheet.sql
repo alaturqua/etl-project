@@ -15,6 +15,7 @@ with base as (
 	where
 	1=1
 	 and user_name = 'U0397S7U1FH'
+	 and (user_message not like '%sick%' or user_message not like '%vacation%')
 	order by
 		date_ts desc
 ), prep AS (
