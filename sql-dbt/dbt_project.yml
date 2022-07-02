@@ -38,3 +38,4 @@ models:
       +materialized: table
     staging:
       +materialized: table
+

@@ -1,0 +1,8 @@
+version: 2
+
+seeds:
+  - name: bayern_feiertage
+    columns:
+      - name: tag
+      - name: feiertage
+      - name: bundesland
