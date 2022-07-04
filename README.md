@@ -7,6 +7,9 @@
 ## Visualisation
 ![Visualisation](images/grafana.png)
 
+## RE_DATA - Data Reliability
+![RE_DATA](images/re_data_overview.png)
+
 
 ## Prerequisites:
 - Create .env file in parent folder with following content
