@@ -9,3 +9,4 @@ dbt-core
 dbt-postgres
 psycopg2-binary
 sqlalchemy
+re_data

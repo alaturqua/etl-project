@@ -1,3 +1,13 @@
+{{
+    config(
+        re_data_monitored=true,
+        re_data_time_filter='date_ts',
+		re_data_anomaly_detector={'name': 'z_score', 'threshold': 3},
+
+    )
+}}
+
+
 with base as (
 	select
 		distinct user_name,
