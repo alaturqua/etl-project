@@ -2,6 +2,12 @@ version: 2
 
 models:
   - name: stg_timesheet
+    config:
+      re_data_monitored: true
+      re_data_time_filter: ts
+      re_data_anomaly_detector:
+        name: modified_z_score
+        threshold: 3
     description: "Staging table for message data from Slack"
     columns:
       - name: user_name
@@ -22,4 +28,10 @@ sources:
   - name: public
     tables:
       - name: timesheet
-      - name: bayern_feiertage
+        config:
+          re_data_monitored: true
+          re_data_time_filter: ts
+          re_data_anomaly_detector:
+            name: modified_z_score
+            threshold: 3
+

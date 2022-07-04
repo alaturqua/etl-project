@@ -13,6 +13,9 @@
 ```
 AIRFLOW_UID=50000
 SLACK_TOKEN="<Your Slack Token>"
+POSTGRES_USER="airflow"
+POSTGRES_PASSWORD="airflow"
+POSTGRESS_DB="postgres"
 ```
 
 

@@ -2,6 +2,12 @@ version: 2
 
 models:
   - name: fct_timesheet
+    config:
+      re_data_monitored: true
+      re_data_time_filter: date_ts
+      re_data_anomaly_detector:
+        name: modified_z_score
+        threshold: 3
     columns:
       - name: user_name
         description: 'User ID'
@@ -15,4 +21,10 @@ models:
         description: 'Day of Week'
         tests:
           - not_null
+  - name: dim_holidays
+    config:
+      re_data_monitored: true
+      re_data_anomaly_detector:
+        name: modified_z_score
+        threshold: 3
     

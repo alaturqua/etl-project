@@ -27,6 +27,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 vars:
   re_data:save_test_history: true
   re_data:store_table_samples: true
+  re_data:anomaly_detection_look_back_days: 30
   re_data:anomaly_detector:
       name: modified_z_score
       threshold: 3
@@ -34,7 +35,18 @@ vars:
     table:
       - row_count
       - freshness
-  re_data:time_window_start: '{{ (run_started_at - modules.datetime.timedelta(90)).strftime("%Y-%m-%d 00:00:00") }}'
+    column:
+      numeric:
+        - min
+        - max
+        - avg
+        - nulls_count
+      text:
+        - min_length
+        - max_length
+        - avg_length
+        - nulls_count
+  re_data:time_window_start: '{{ (run_started_at - modules.datetime.timedelta(7)).strftime("%Y-%m-%d 00:00:00") }}'
   re_data:time_window_end: '{{ run_started_at.strftime("%Y-%m-%d 00:00:00") }}'
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
@@ -50,9 +62,12 @@ models:
     staging:
       +materialized: table
 
-sources:
-  sql-dbt:
-    public:
-      timesheet:
-        +re_data_monitored: true
-        +re_data_time_filter: ts      
+seeds:
+  sql_dbt:
+    bayern_feiertage:
+      +re_data_monitored: true
+      +re_data_anomaly_detector:
+        name: z_score
+        threshold: 3
+
+
