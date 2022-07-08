@@ -22,12 +22,44 @@ models:
         description: "Slack message posted by user"
         tests: 
           - not_null
+  - name: stg_users_list
+    config:
+      re_data_monitored: true
+      re_data_time_filter: ts
+      re_data_anomaly_detector:
+        name: modified_z_score
+        threshold: 3
+    description: "Staging table for users_list data from Slack"
+    columns:
+      - name: id
+        description: 'User ID in Slack'
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: 'User Name'
+        tests:
+          - not_null
+      - name: real_name
+        description: "User Real Name"
+      - name: ts
+        description: "Ingestion Timestamp"
+        tests: 
+          - not_null
+
 
 
 sources:
   - name: public
     tables:
       - name: timesheet
+        config:
+          re_data_monitored: true
+          re_data_time_filter: ts
+          re_data_anomaly_detector:
+            name: modified_z_score
+            threshold: 3
+      - name: users_list
         config:
           re_data_monitored: true
           re_data_time_filter: ts

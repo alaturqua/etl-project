@@ -58,6 +58,7 @@ def extract_data():
         messages = response['messages']
         messages_all = messages_all + messages
 
+    
     print(
         "Fetched a total of {} messages from channel {}".format(
             len(messages_all),
@@ -76,10 +77,20 @@ def extract_data():
     
     return parquet_file_path
 
+def extract_user_list():
+    token = os.getenv("SLACK_TOKEN")
+    client = slack.WebClient(token=token)
+    users_list = client.users_list()
+    timestr = time.strftime("%Y-%m-%d")
 
-from pyspark.sql import SparkSession, Window
-from pyspark.sql import functions as f
-from pyspark.sql.types import *
+    parquet_file_path = f"/data/parquet/users_list_{timestr}.parquet"
+
+    df = pd.json_normalize(users_list.data['members'])[['id', 'name', 'real_name']]
+    df['ts'] = datetime.now()
+    logger.info(df.head(10))
+    df.to_parquet(parquet_file_path)
+    return parquet_file_path
+    
 
 
 def load_data_to_postgres(file_path):
@@ -91,4 +102,17 @@ def load_data_to_postgres(file_path):
     df["ts"] = pd.to_datetime(df['ts'],unit='s')
     logger.info(df.head(10))
     df.to_sql(name="timesheet", schema="public", con=alchemy_engine, if_exists="replace")
+    
     return "Success"
+
+def load_user_list_to_postgres(file_path):
+    from sqlalchemy import create_engine
+    
+    alchemy_engine = create_engine('postgresql+psycopg2://airflow:airflow@postgres-dwh:5432/postgres')
+
+    df = pd.read_parquet(file_path)
+    logger.info(df.head(10))
+    df.to_sql(name="users_list", schema="public", con=alchemy_engine, if_exists="replace")
+    
+    return "Success"
+

@@ -285,6 +285,9 @@ services:
       - 5432:5432
     volumes:
       - postgres-dwh-volume:/var/lib/postgresql/data
+      - ./setup_db/10-init.sql:/docker-entrypoint-initdb.d/10-init.sql
+    restart: always
+
 
   grafana:
     image: grafana/grafana
@@ -309,8 +312,22 @@ services:
     links:
       - grafana
     restart: always 
+
+  metabase:
+    image: metabase/metabase
+    container_name: metabase
+    depends_on:
+      - postgres-dwh
+    env_file:
+      - ./.env
+    ports:
+      - 5080:3000
+    volumes:
+      - metabase-storage:/metabase-data
+    restart: always
 volumes:
   postgres-db-volume:
   postgres-dwh-volume:
   grafana-storage:
   prometheus-storage:
+  metabase-storage:

@@ -3,13 +3,9 @@ from datetime import datetime
 
 import pendulum
 from airflow.decorators import dag, task
-from airflow.operators.bash import BashOperator
-from airflow.operators.dummy import DummyOperator
-from airflow.operators.python import PythonOperator
-from airflow.sensors.filesystem import FileSensor
-from includes.etl_slack_script import extract_data, load_data_to_postgres
 from airflow.models import Variable
-
+from airflow.operators.bash import BashOperator
+from includes.etl_slack_script import extract_data, load_data_to_postgres, extract_user_list, load_user_list_to_postgres
 
 from airflow import DAG
 
@@ -30,8 +26,13 @@ def etl_timesheet():
     """
     
     @task
-    def extract_data_from_slack():
+    def extract_data_from_slack_timesheet():
         file_path = extract_data()
+        return file_path
+    
+    @task
+    def extract_data_from_slack_user_list():
+        file_path = extract_user_list()
         return file_path
     
     @task
@@ -40,9 +41,19 @@ def etl_timesheet():
         return file_path
 
     @task
-    def load_data(file_path):
+    def validate_user_list_exist(file_path):
+        assert os.path.exists(file_path)
+        return file_path
+
+    @task
+    def load_data_timesheet(file_path):
         load_data_to_postgres(file_path)
         
+        return file_path
+
+    @task
+    def load_data_users_list(file_path):
+        load_user_list_to_postgres(file_path)
         return file_path
     
     dbt_test = BashOperator(
@@ -76,10 +87,13 @@ def etl_timesheet():
     )
         
     
-    extract_data_from_slack = extract_data_from_slack()
-    validate_file_exist = validate_file_exist(extract_data_from_slack)
-    load_data = load_data(validate_file_exist)
-    load_data >> dbt_test >> dbt_run >> re_data_run >> re_data_overview_generate >> notify_data_anomalies
+    extract_data_from_slack_timesheet = extract_data_from_slack_timesheet()
+    extract_data_from_slack_user_list = extract_data_from_slack_user_list()
+    validate_file_exist = validate_file_exist(extract_data_from_slack_timesheet)
+    validate_user_list_exist = validate_user_list_exist(extract_data_from_slack_user_list)
+    load_data_timesheet = load_data_timesheet(validate_file_exist)
+    load_data_users_list = load_data_users_list(validate_user_list_exist)
+    [load_data_timesheet, load_data_users_list ] >> dbt_run >> dbt_test >> re_data_run >> re_data_overview_generate >> notify_data_anomalies
     
 
 etl_timesheet = etl_timesheet()

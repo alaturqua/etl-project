@@ -27,4 +27,10 @@ models:
       re_data_anomaly_detector:
         name: modified_z_score
         threshold: 3
+  - name: dim_users_list
+    config:
+      re_data_monitored: true
+      re_data_anomaly_detector:
+        name: modified_z_score
+        threshold: 3
     
