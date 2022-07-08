@@ -325,6 +325,24 @@ services:
     volumes:
       - metabase-storage:/metabase-data
     restart: always
+  
+  re_data:
+    build:
+      context: .
+      dockerfile: ./re_data/Dockerfile
+    container_name: re_data
+    env_file:
+      - ./.env
+    ports:
+      - 8050:8050
+    volumes:
+      - ./sql-dbt:/sql-dbt
+    restart: always
+    depends_on:
+      - postgres-dwh
+    working_dir: /sql-dbt
+    command: ["re_data", "overview", "serve", "--port", "8050", "--no-browser"]
+
 volumes:
   postgres-db-volume:
   postgres-dwh-volume:

@@ -14,6 +14,7 @@ POSTGRESS_DB="postgres"
 ```
 ## Start Stack
 ```
+docker-compose build
 docker-compose up -d
 ```
 
