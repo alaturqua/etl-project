@@ -26,11 +26,11 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 vars:
   re_data:save_test_history: true
-  re_data:store_table_samples: true
+  re_data:store_table_samples: false
   re_data:anomaly_detection_look_back_days: 30
   re_data:anomaly_detector:
       name: modified_z_score
-      threshold: 3
+      threshold: 2
   re_data:metrics_base:
     table:
       - row_count
@@ -40,12 +40,18 @@ vars:
         - min
         - max
         - avg
+        - stddev
+        - variance
         - nulls_count
+        - nulls_percent
       text:
         - min_length
         - max_length
         - avg_length
         - nulls_count
+        - missing_count
+        - nulls_percent
+        - missing_percent
   re_data:time_window_start: '{{ (run_started_at - modules.datetime.timedelta(7)).strftime("%Y-%m-%d 00:00:00") }}'
   re_data:time_window_end: '{{ run_started_at.strftime("%Y-%m-%d 00:00:00") }}'
 # Configuring models
@@ -69,5 +75,3 @@ seeds:
       +re_data_anomaly_detector:
         name: z_score
         threshold: 3
-
-
