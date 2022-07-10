@@ -59,11 +59,17 @@ x-airflow-common:
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    AIRFLOW__ELASTICSEARCH__HOST: elasticsearch:9200
+    AIRFLOW__ELASTICSEARCH__JSON_FORMAT: True
+    AIRFLOW__ELASTICSEARCH__WRITE_STDOUT: True
+    AIRFLOW__LOGGING__REMOTE_LOGGING: True
+
   env_file: ./.env
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
     - ./airflow/plugins:/opt/airflow/plugins
+    # - ./airflow/config/airflow.cfg:/opt/airflow/airflow.cfg
     - ./data:/data
     - ./sql-dbt:/dwh/sql-dbt
     - ./sql-dbt/profiles/profiles.yml:/home/airflow/.dbt/profiles.yml
@@ -343,9 +349,83 @@ services:
     working_dir: /sql-dbt
     command: ["re_data", "overview", "serve", "--port", "8050", "--no-browser"]
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.3.2
+    container_name: elasticsearch
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - elasticsearch-data-v2:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:8.3.2
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+  
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.3.2
+    user: root
+    container_name: filebeat
+    environment:
+      - setup.kibana.host=kibana:5601
+      - output.elasticsearch.hosts=["elasticsearch:9200"]
+      - strict.perms=false
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./airflow/logs/:/airflow/logs/:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers/:/var/lib/docker/containers/:ro
+    depends_on:
+      - elasticsearch
+      - kibana
+    links:
+      - "elasticsearch"
+      - "kibana"
+    restart: on-failure
+
+    command: ["filebeat", "-e", "-strict.perms=false"]
+    
+  # logstash:
+  #   image: logstash:8.3.2
+  #   container_name: logstash
+  #   depends_on:
+  #     - elasticsearch
+  #   links:
+  #     - elasticsearch
+  #   ports:
+  #     - 5044:5044
+  #   restart: always
+  #   volumes:
+  #     - logstash-data:/usr/share/logstash/data
+  #     - ./airflow/logs/:/airflow/logs/:ro
+  #     - ./logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf:ro
+  #   command: ["logstash", "-f", "/etc/logstash/conf.d/logstash.conf"]
+
+
 volumes:
   postgres-db-volume:
   postgres-dwh-volume:
   grafana-storage:
   prometheus-storage:
   metabase-storage:
+  elasticsearch-data-v2:
+  logstash-data:
