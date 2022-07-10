@@ -67,11 +67,3 @@ models:
       +materialized: table
     staging:
       +materialized: table
-
-seeds:
-  sql_dbt:
-    bayern_feiertage:
-      +re_data_monitored: true
-      +re_data_anomaly_detector:
-        name: z_score
-        threshold: 3
