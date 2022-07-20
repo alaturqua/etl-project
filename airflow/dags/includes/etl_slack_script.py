@@ -13,6 +13,7 @@ import os
 import time
 from datetime import datetime
 from time import sleep
+from pathlib import Path
 
 import pandas as pd
 import psycopg2
@@ -66,7 +67,9 @@ def extract_data():
     ))
 
     timestr = time.strftime("%Y-%m-%d")
-    parquet_file_path = f"/data/parquet/timesheet_{timestr}.parquet"
+    folder_path = "/data/parquet"
+    Path(folder_path).mkdir(parents=True, exist_ok=True)
+    parquet_file_path = f"{folder_path}/timesheet_{timestr}.parquet"
     logger.info(f"Creating parquet file on: {parquet_file_path}")
     
     df = pd.DataFrame(messages_all)
@@ -82,8 +85,9 @@ def extract_user_list():
     client = slack.WebClient(token=token)
     users_list = client.users_list()
     timestr = time.strftime("%Y-%m-%d")
-
-    parquet_file_path = f"/data/parquet/users_list_{timestr}.parquet"
+    folder_path = "/data/parquet"
+    Path(folder_path).mkdir(parents=True, exist_ok=True)
+    parquet_file_path = f"{folder_path}/timesheet_{timestr}.parquet"
 
     df = pd.json_normalize(users_list.data['members'])[['id', 'name', 'real_name']]
     df['ts'] = datetime.now()
