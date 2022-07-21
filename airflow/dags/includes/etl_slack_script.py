@@ -68,7 +68,9 @@ def extract_data():
 
     timestr = time.strftime("%Y-%m-%d")
     folder_path = "/data/parquet"
-    os.makedirs(folder_path, exist_ok=True)
+    #os.makedirs(folder_path, exist_ok=True)
+    if not os.path.exists(folder_path):
+        raise Exception(f"folder {folder_path} does not exist")
     parquet_file_path = f"{folder_path}/timesheet_{timestr}.parquet"
     logger.info(f"Creating parquet file on: {parquet_file_path}")
     
@@ -86,7 +88,9 @@ def extract_user_list():
     users_list = client.users_list()
     timestr = time.strftime("%Y-%m-%d")
     folder_path = "/data/parquet"
-    os.makedirs(folder_path, exist_ok=True)
+    if not os.path.exists(folder_path):
+        raise Exception(f"folder {folder_path} does not exist")
+    #os.makedirs(folder_path, exist_ok=True)
     parquet_file_path = f"{folder_path}/timesheet_{timestr}.parquet"
 
     df = pd.json_normalize(users_list.data['members'])[['id', 'name', 'real_name']]
