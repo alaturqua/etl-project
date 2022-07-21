@@ -60,22 +60,22 @@ def etl_timesheet():
     
     dbt_test = BashOperator(
         task_id= "dbt_test",
-        bash_command="cd /opt/airflow/dags/repo/sql-dbt && dbt ls && dbt test"
+        bash_command="cd /opt/airflow/dags/repo/sql-dbt && dbt ls && dbt test --profiles-dir /opt/airflow/dags/repo/sql-dbt/profiles",
     )
     
     dbt_run = BashOperator(
         task_id= "dbt_run",
-        bash_command="cd /opt/airflow/dags/repo/sql-dbt && dbt ls && dbt seed && dbt run"
+        bash_command="cd /opt/airflow/dags/repo/sql-dbt && dbt ls && dbt seed --profiles-dir /opt/airflow/dags/repo/sql-dbt/profiles && dbt run --profiles-dir /opt/airflow/dags/repo/sql-dbt/profiles"
     )
     
     re_data_run = BashOperator(
         task_id= "re_data_run",
-        bash_command="cd /opt/airflow/dags/repo/sql-dbt && dbt run -m package:re_data"
+        bash_command="cd /opt/airflow/dags/repo/sql-dbt && dbt run -m package:re_data --profiles-dir /opt/airflow/dags/repo/sql-dbt/profiles"
     )
     
     re_data_overview_generate = BashOperator(
         task_id= "re_data_overview_generate",
-        bash_command="cd /opt/airflow/dags/repo/sql-dbt && re_data overview generate"
+        bash_command="cd /opt/airflow/dags/repo/sql-dbt && re_data overview generate --profiles-dir /opt/airflow/dags/repo/sql-dbt/profiles"
     )
     
     SLACK_WEBHOOK = Variable.get("SLACK_WEBHOOK")
@@ -84,6 +84,7 @@ def etl_timesheet():
         task_id="notify_data_anomalies",
         bash_command=f"""cd /opt/airflow/dags/repo/sql-dbt && re_data notify slack \
             --webhook-url {SLACK_WEBHOOK}
+            --profiles-dir /opt/airflow/dags/repo/sql-dbt/profiles
         """
         
     )
