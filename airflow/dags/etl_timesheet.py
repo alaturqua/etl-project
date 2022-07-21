@@ -65,7 +65,7 @@ def etl_timesheet():
     
     dbt_run = BashOperator(
         task_id= "dbt_run",
-        bash_command="cd /opt/airflow/dags/repo/sql-dbt && dbt ls && dbt seed && dbt run --profiles-dir ./profiles"
+        bash_command="cd /opt/airflow/dags/repo/sql-dbt && dbt ls && dbt seed --profiles-dir ./profiles && dbt run --profiles-dir ./profiles"
     )
     
     re_data_run = BashOperator(
