@@ -12,8 +12,8 @@ import json
 import os
 import time
 from datetime import datetime
-from time import sleep
 from pathlib import Path
+from time import sleep
 
 import pandas as pd
 import psycopg2
@@ -68,7 +68,7 @@ def extract_data():
 
     timestr = time.strftime("%Y-%m-%d")
     folder_path = "/data/parquet"
-    Path(folder_path).mkdir(parents=True, exist_ok=True)
+    os.makedirs(folder_path, exist_ok=True)
     parquet_file_path = f"{folder_path}/timesheet_{timestr}.parquet"
     logger.info(f"Creating parquet file on: {parquet_file_path}")
     
@@ -86,7 +86,7 @@ def extract_user_list():
     users_list = client.users_list()
     timestr = time.strftime("%Y-%m-%d")
     folder_path = "/data/parquet"
-    Path(folder_path).mkdir(parents=True, exist_ok=True)
+    os.makedirs(folder_path, exist_ok=True)
     parquet_file_path = f"{folder_path}/timesheet_{timestr}.parquet"
 
     df = pd.json_normalize(users_list.data['members'])[['id', 'name', 'real_name']]

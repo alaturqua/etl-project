@@ -5,7 +5,9 @@ import pendulum
 from airflow.decorators import dag, task
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
-from includes.etl_slack_script import extract_data, load_data_to_postgres, extract_user_list, load_user_list_to_postgres
+from includes.etl_slack_script import (extract_data, extract_user_list,
+                                       load_data_to_postgres,
+                                       load_user_list_to_postgres)
 
 from airflow import DAG
 
