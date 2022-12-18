@@ -6,11 +6,7 @@ default_args = {
     'owner': 'airflow',
 }
 
-example_dataset = Dataset( name="dataset",
-    description="A dataset",
-    dataset_type="dataset",
-    dataset_uri="s3://trino.minio-service/warehouse/dwh"
-    dataset_format="avro")
+example_dataset = Dataset("s3://trino.minio-service/warehouse/dwh")
 
 @dag(default_args=default_args, 
      schedule=example_dataset, 
