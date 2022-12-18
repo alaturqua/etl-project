@@ -1,9 +1,9 @@
 FROM python:3.9-slim
 
+RUN apt-get -y update && apt-get install -y git
+
 RUN pip install --no-cache-dir re_data dbt-core dbt-postgres
 
-COPY ./sql-dbt /sql-dbt
+EXPOSE 8085
 
-WORKDIR /sql-dbt
-
-EXPOSE 8050
+ENTRYPOINT [ "/bin/bash" ]

@@ -10,3 +10,4 @@ dbt-postgres
 psycopg2-binary
 sqlalchemy
 re_data
+apache-airflow==2.4.1

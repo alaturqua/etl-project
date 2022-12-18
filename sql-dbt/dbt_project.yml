@@ -24,37 +24,37 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "target"
   - "dbt_packages"
 
-vars:
-  re_data:save_test_history: true
-  re_data:store_table_samples: false
-  re_data:anomaly_detection_look_back_days: 30
-  re_data:anomaly_detector:
-      name: modified_z_score
-      threshold: 2
-  re_data:metrics_base:
-    table:
-      - row_count
-      - freshness
-    column:
-      numeric:
-        - min
-        - max
-        - avg
-        - stddev
-        - variance
-        - nulls_count
-        - nulls_percent
-      text:
-        - min_length
-        - max_length
-        - avg_length
-        - nulls_count
-        - missing_count
-        - nulls_percent
-        - missing_percent
-  re_data:time_window_start: '{{ (run_started_at - modules.datetime.timedelta(7)).strftime("%Y-%m-%d 00:00:00") }}'
-  re_data:time_window_end: '{{ run_started_at.strftime("%Y-%m-%d 00:00:00") }}'
-# Configuring models
+# vars:
+#   re_data:save_test_history: true
+#   re_data:store_table_samples: false
+#   re_data:anomaly_detection_look_back_days: 30
+#   re_data:anomaly_detector:
+#       name: modified_z_score
+#       threshold: 2
+#   re_data:metrics_base:
+#     table:
+#       - row_count
+#       - freshness
+#     column:
+#       numeric:
+#         - min
+#         - max
+#         - avg
+#         - stddev
+#         - variance
+#         - nulls_count
+#         - nulls_percent
+#       text:
+#         - min_length
+#         - max_length
+#         - avg_length
+#         - nulls_count
+#         - missing_count
+#         - nulls_percent
+#         - missing_percent
+#   re_data:time_window_start: '{{ (run_started_at - modules.datetime.timedelta(7)).strftime("%Y-%m-%d 00:00:00") }}'
+#   re_data:time_window_end: '{{ run_started_at.strftime("%Y-%m-%d 00:00:00") }}'
+# # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
 # In this example config, we tell dbt to build all models in the example/ directory

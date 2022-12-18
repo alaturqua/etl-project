@@ -21,7 +21,7 @@ default_args = {
      catchup=True,
      tags=["ETL"]
 )
-def etl_timesheet():
+def etl_timesheet_kubernetes():
     """
     ### ETL Job to load data
     Load data to postgres.
@@ -60,33 +60,33 @@ def etl_timesheet():
     
     dbt_test = BashOperator(
         task_id= "dbt_test",
-        bash_command="cd /dwh/sql-dbt && dbt ls && dbt test",
+        bash_command="cd /opt/airflow/dags/repo/sql-dbt && dbt ls && dbt test",
     )
     
     dbt_run = BashOperator(
         task_id= "dbt_run",
-        bash_command="cd /dwh/sql-dbt && dbt ls && dbt seed && dbt run"
+        bash_command="cd /opt/airflow/dags/repo/sql-dbt && dbt ls && dbt seed && dbt run"
     )
     
-    # re_data_run = BashOperator(
-    #     task_id= "re_data_run",
-    #     bash_command="cd /dwh/sql-dbt && dbt run -m package:re_data"
-    # )
+    re_data_run = BashOperator(
+        task_id= "re_data_run",
+        bash_command="cd /opt/airflow/dags/repo/sql-dbt && dbt run -m package:re_data"
+    )
     
-    # re_data_overview_generate = BashOperator(
-    #     task_id= "re_data_overview_generate",
-    #     bash_command="cd /dwh/sql-dbt && re_data overview generate"
-    # )
+    re_data_overview_generate = BashOperator(
+        task_id= "re_data_overview_generate",
+        bash_command="cd /opt/airflow/dags/repo/sql-dbt && re_data overview generate"
+    )
     
-    # SLACK_WEBHOOK = Variable.get("SLACK_WEBHOOK")
+    SLACK_WEBHOOK = Variable.get("SLACK_WEBHOOK")
     
-    # notify_data_anomalies = BashOperator(
-    #     task_id="notify_data_anomalies",
-    #     bash_command=f"""cd /dwh/sql-dbt && re_data notify slack \
-    #         --webhook-url {SLACK_WEBHOOK}
-    #     """
+    notify_data_anomalies = BashOperator(
+        task_id="notify_data_anomalies",
+        bash_command=f"""cd /opt/airflow/dags/repo/sql-dbt && re_data notify slack \
+            --webhook-url {SLACK_WEBHOOK}
+        """
         
-    # )
+    )
         
     
     extract_data_from_slack_timesheet = extract_data_from_slack_timesheet()
@@ -95,7 +95,7 @@ def etl_timesheet():
     validate_user_list_exist = validate_user_list_exist(extract_data_from_slack_user_list)
     load_data_timesheet = load_data_timesheet(validate_file_exist)
     load_data_users_list = load_data_users_list(validate_user_list_exist)
-    [load_data_timesheet, load_data_users_list ] >> dbt_run >> dbt_test # >> re_data_run >> re_data_overview_generate >> notify_data_anomalies
+    [load_data_timesheet, load_data_users_list ] >> dbt_run >> dbt_test >> re_data_run >> re_data_overview_generate >> notify_data_anomalies
     
 
-etl_timesheet = etl_timesheet()
+etl_timesheet = etl_timesheet_kubernetes()

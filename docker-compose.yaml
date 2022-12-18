@@ -57,12 +57,12 @@ x-airflow-common:
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
+    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.default'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
-    AIRFLOW__ELASTICSEARCH__HOST: elasticsearch:9200
-    AIRFLOW__ELASTICSEARCH__JSON_FORMAT: True
-    AIRFLOW__ELASTICSEARCH__WRITE_STDOUT: True
-    AIRFLOW__LOGGING__REMOTE_LOGGING: True
+    # AIRFLOW__ELASTICSEARCH__HOST: elasticsearch:9200
+    # AIRFLOW__ELASTICSEARCH__JSON_FORMAT: True
+    # AIRFLOW__ELASTICSEARCH__WRITE_STDOUT: True
+    # AIRFLOW__LOGGING__REMOTE_LOGGING: True
 
   env_file: ./.env
   volumes:
@@ -86,6 +86,10 @@ services:
     image: postgres:13
     env_file:
       - ./.env
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
     healthcheck:
@@ -180,7 +184,7 @@ services:
         function ver() {
           printf "%04d%04d%04d%04d" $${1//./ }
         }
-        airflow_version=$$(gosu airflow airflow version)
+        airflow_version=$$(AIRFLOW__LOGGING__LOGGING_LEVEL=INFO && gosu airflow airflow version)
         airflow_version_comparable=$$(ver $${airflow_version})
         min_airflow_version=2.2.0
         min_airflow_version_comparable=$$(ver $${min_airflow_version})
@@ -197,7 +201,7 @@ services:
           echo "If you are on Linux, you SHOULD follow the instructions below to set "
           echo "AIRFLOW_UID environment variable, otherwise files will be owned by root."
           echo "For other operating systems you can get rid of the warning with manually created .env file:"
-          echo "    See: https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html#setting-the-right-airflow-user"
+          echo "    See: https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#setting-the-right-airflow-user"
           echo
         fi
         one_meg=1048576
@@ -230,7 +234,7 @@ services:
           echo
           echo -e "\033[1;33mWARNING!!!: You have not enough resources to run Airflow (see above)!\e[0m"
           echo "Please follow the instructions to increase amount of resources available:"
-          echo "   https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html#before-you-begin"
+          echo "   https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#before-you-begin"
           echo
         fi
         mkdir -p /sources/logs /sources/dags /sources/plugins
@@ -246,7 +250,7 @@ services:
       _PIP_ADDITIONAL_REQUIREMENTS: ''
     user: "0:0"
     volumes:
-      - ./airflow:/sources
+      - .:/sources
 
   airflow-cli:
     <<: *airflow-common
@@ -319,90 +323,99 @@ services:
       - grafana
     restart: always 
 
-  metabase:
-    image: metabase/metabase
-    container_name: metabase
-    depends_on:
-      - postgres-dwh
-    env_file:
-      - ./.env
-    ports:
-      - 5080:3000
-    volumes:
-      - metabase-storage:/metabase-data
-    restart: always
+  # metabase:
+  #   image: metabase/metabase
+  #   container_name: metabase
+  #   depends_on:
+  #     - postgres-dwh
+  #   env_file:
+  #     - ./.env
+  #   ports:
+  #     - 5080:3000
+  #   volumes:
+  #     - metabase-storage:/metabase-data
+  #   restart: always
   
-  re_data:
-    build:
-      context: .
-      dockerfile: ./re_data/Dockerfile
-    container_name: re_data
-    env_file:
-      - ./.env
-    ports:
-      - 8050:8050
-    volumes:
-      - ./sql-dbt:/sql-dbt
-    restart: always
-    depends_on:
-      - postgres-dwh
-    working_dir: /sql-dbt
-    command: ["re_data", "overview", "serve", "--port", "8050", "--no-browser"]
+  # re_data:
+  #   build:
+  #     context: .
+  #     dockerfile: ./re_data/Dockerfile
+  #   container_name: re_data
+  #   env_file:
+  #     - ./.env
+  #   ports:
+  #     - 8050:8050
+  #   volumes:
+  #     - ./sql-dbt:/sql-dbt
+  #   restart: always
+  #   depends_on:
+  #     - postgres-dwh
+  #   working_dir: /sql-dbt
+  #   command: ["re_data", "overview", "serve", "--port", "8050", "--no-browser"]
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.3.2
-    container_name: elasticsearch
-    environment:
-      - xpack.security.enabled=false
-      - discovery.type=single-node
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    cap_add:
-      - IPC_LOCK
-    volumes:
-      - elasticsearch-data-v2:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-      - 9300:9300
+volumes:
+  postgres-db-volume:
+  postgres-dwh-volume:
+  grafana-storage:
+  prometheus-storage:
+  metabase-storage:
+    # elasticsearch-data-v2:
+    # logstash-data:
 
-  kibana:
-    container_name: kibana
-    image: docker.elastic.co/kibana/kibana:8.3.2
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - 5601:5601
-    depends_on:
-      - elasticsearch
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.3.2
+  #   container_name: elasticsearch
+  #   environment:
+  #     - xpack.security.enabled=false
+  #     - discovery.type=single-node
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #     nofile:
+  #       soft: 65536
+  #       hard: 65536
+  #   cap_add:
+  #     - IPC_LOCK
+  #   volumes:
+  #     - elasticsearch-data-v2:/usr/share/elasticsearch/data
+  #   ports:
+  #     - 9200:9200
+  #     - 9300:9300
+
+  # kibana:
+  #   container_name: kibana
+  #   image: docker.elastic.co/kibana/kibana:8.3.2
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+  #   ports:
+  #     - 5601:5601
+  #   depends_on:
+  #     - elasticsearch
   
 
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:8.3.2
-    user: root
-    container_name: filebeat
-    environment:
-      - setup.kibana.host=kibana:5601
-      - output.elasticsearch.hosts=["elasticsearch:9200"]
-      - strict.perms=false
-    volumes:
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./airflow/logs/:/airflow/logs/:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/containers/:/var/lib/docker/containers/:ro
-    depends_on:
-      - elasticsearch
-      - kibana
-    links:
-      - "elasticsearch"
-      - "kibana"
-    restart: on-failure
+  # filebeat:
+  #   image: docker.elastic.co/beats/filebeat:8.3.2
+  #   user: root
+  #   container_name: filebeat
+  #   environment:
+  #     - setup.kibana.host=kibana:5601
+  #     - output.elasticsearch.hosts=["elasticsearch:9200"]
+  #     - strict.perms=false
+  #   volumes:
+  #     - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+  #     - ./airflow/logs/:/airflow/logs/:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - /var/lib/docker/containers/:/var/lib/docker/containers/:ro
+  #   depends_on:
+  #     - elasticsearch
+  #     - kibana
+  #   links:
+  #     - "elasticsearch"
+  #     - "kibana"
+  #   restart: on-failure
 
-    command: ["filebeat", "-e", "-strict.perms=false"]
+  #   command: ["filebeat", "-e", "-strict.perms=false"]
     
   # logstash:
   #   image: logstash:8.3.2
@@ -420,12 +433,3 @@ services:
   #     - ./logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf:ro
   #   command: ["logstash", "-f", "/etc/logstash/conf.d/logstash.conf"]
 
-
-volumes:
-  postgres-db-volume:
-  postgres-dwh-volume:
-  grafana-storage:
-  prometheus-storage:
-  metabase-storage:
-  elasticsearch-data-v2:
-  logstash-data:
