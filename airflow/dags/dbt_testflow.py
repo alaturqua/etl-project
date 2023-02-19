@@ -1,0 +1,37 @@
+from pendulum import datetime
+
+from airflow import DAG
+from airflow.operators.empty import EmptyOperator
+from cosmos.providers.dbt.task_group import DbtTaskGroup
+
+from cosmos.providers.dbt import DbtSeedOperator
+
+
+with DAG(
+    dag_id="extract_dag",
+    start_date=datetime(2023, 1, 9),
+    schedule="@daily",
+) as dag:
+
+    e1 = EmptyOperator(task_id="ingestion_workflow")
+
+    seed = DbtSeedOperator(
+        task_id="seed",
+        project_dir="/dwh/sql-dbt",
+        full_refresh=True,
+        conn_id="dbt_conn",
+        schema="public",
+    )
+
+    dbt_tg = DbtTaskGroup(
+        group_id="dbt_tg",
+        dbt_project_name="",
+        dbt_root_path="/dwh/sql-dbt",
+        dbt_models_dir="/dwh/sql-dbt/models",
+        conn_id="dbt_conn",
+        dbt_args={"schema": "public"},
+    )
+
+    e2 = EmptyOperator(task_id="some_extraction")
+
+    e1 >> seed >> dbt_tg >> e2

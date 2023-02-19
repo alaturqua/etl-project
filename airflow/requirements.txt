@@ -7,7 +7,10 @@ aiohttp
 matplotlib
 dbt-core
 dbt-postgres
+dbt-trino
 psycopg2-binary
 sqlalchemy
 re_data
-apache-airflow==2.4.1
+apache-airflow==2.5.1
+astronomer-cosmos
+apache-airflow-providers-trino
