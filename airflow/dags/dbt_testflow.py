@@ -19,7 +19,7 @@ with DAG(
         task_id="seed",
         project_dir="/dbt/jaffle_shop",
         full_refresh=True,
-        conn_id="trino-conn",
+        conn_id="trino_conn",
         schema="public",
     )
 
@@ -28,7 +28,7 @@ with DAG(
         dbt_project_name="",
         dbt_root_path="/dbt/jaffle_shop",
         dbt_models_dir="/dbt/jaffle_shop/models",
-        conn_id="dbt_conn",
+        conn_id="trino_conn",
         dbt_args={"schema": "public"},
     )
 
