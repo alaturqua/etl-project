@@ -28,7 +28,7 @@ with DAG(
         dbt_root_path="/dbt/jaffle_shop",
         dbt_models_dir="/dbt/jaffle_shop/models",
         conn_id="airflow_conn",
-        dbt_args={"schema": "public", "db_name": "iceberg"},
+        dbt_args={"schema": "public"},
     )
 
     e2 = EmptyOperator(task_id="end")
