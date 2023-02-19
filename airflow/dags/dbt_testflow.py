@@ -13,7 +13,7 @@ with DAG(
     schedule="@daily",
 ) as dag:
 
-    e1 = EmptyOperator(task_id="ingestion_workflow")
+    e1 = EmptyOperator(task_id="start")
 
     seed = DbtSeedOperator(
         task_id="seed",
@@ -24,7 +24,7 @@ with DAG(
     )
 
     dbt_tg = DbtTaskGroup(
-        group_id="dbt_tg",
+        group_id="dbt_jaffle_shop_tg",
         dbt_project_name="",
         dbt_root_path="/dbt/jaffle_shop",
         dbt_models_dir="/dbt/jaffle_shop/models",
@@ -32,6 +32,6 @@ with DAG(
         dbt_args={"schema": "public"},
     )
 
-    e2 = EmptyOperator(task_id="some_extraction")
+    e2 = EmptyOperator(task_id="end")
 
     e1 >> seed >> dbt_tg >> e2
