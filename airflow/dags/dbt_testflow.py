@@ -17,17 +17,17 @@ with DAG(
 
     seed = DbtSeedOperator(
         task_id="seed",
-        project_dir="/dwh/sql-dbt",
+        project_dir="/dbt/jaffle_shop",
         full_refresh=True,
-        conn_id="dbt_conn",
+        conn_id="trino-conn",
         schema="public",
     )
 
     dbt_tg = DbtTaskGroup(
         group_id="dbt_tg",
         dbt_project_name="",
-        dbt_root_path="/dwh/sql-dbt",
-        dbt_models_dir="/dwh/sql-dbt/models",
+        dbt_root_path="/dbt/jaffle_shop",
+        dbt_models_dir="/dbt/jaffle_shop/models",
         conn_id="dbt_conn",
         dbt_args={"schema": "public"},
     )
