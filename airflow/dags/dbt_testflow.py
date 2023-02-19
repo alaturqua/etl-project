@@ -18,7 +18,7 @@ with DAG(
         task_id="seed",
         project_dir="/dbt/jaffle_shop",
         full_refresh=True,
-        conn_id="trino_conn",
+        conn_id="airflow_conn",
         schema="public",
         dbt_args={"db_name": "iceberg"},
     )
@@ -28,7 +28,7 @@ with DAG(
         dbt_project_name="",
         dbt_root_path="/dbt/jaffle_shop",
         dbt_models_dir="/dbt/jaffle_shop/models",
-        conn_id="trino_conn",
+        conn_id="airflow_conn",
         dbt_args={"schema": "public", "db_name": "iceberg"},
     )
 
