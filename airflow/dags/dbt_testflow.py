@@ -20,7 +20,6 @@ with DAG(
         full_refresh=True,
         conn_id="airflow_conn",
         schema="public",
-        dbt_args={"db_name": "iceberg"},
     )
 
     dbt_tg = DbtTaskGroup(
